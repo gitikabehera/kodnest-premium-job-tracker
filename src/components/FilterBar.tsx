@@ -15,6 +15,7 @@ export interface Filters {
   experience: string;
   source: string;
   sort: string;
+  status: string;
 }
 
 interface FilterBarProps {
@@ -27,6 +28,7 @@ const modes = ["All", "Remote", "Hybrid", "Onsite"];
 const experiences = ["All", "Fresher", "0-1", "1-3", "3-5"];
 const sources = ["All", "LinkedIn", "Naukri", "Indeed"];
 const sorts = ["Latest", "Oldest", "Match Score", "Salary"];
+const jobStatuses = ["All", "Not Applied", "Applied", "Rejected", "Selected"];
 
 const FilterBar = ({ filters, onChange }: FilterBarProps) => {
   const set = (key: keyof Filters, value: string) =>
@@ -48,6 +50,7 @@ const FilterBar = ({ filters, onChange }: FilterBarProps) => {
       <FilterSelect label="Mode" value={filters.mode} options={modes} onValueChange={(v) => set("mode", v)} />
       <FilterSelect label="Experience" value={filters.experience} options={experiences} onValueChange={(v) => set("experience", v)} />
       <FilterSelect label="Source" value={filters.source} options={sources} onValueChange={(v) => set("source", v)} />
+      <FilterSelect label="Status" value={filters.status} options={jobStatuses} onValueChange={(v) => set("status", v)} />
       <FilterSelect label="Sort" value={filters.sort} options={sorts} onValueChange={(v) => set("sort", v)} />
     </div>
   );

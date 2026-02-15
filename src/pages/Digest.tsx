@@ -2,6 +2,7 @@ import { useState, useMemo, useCallback } from "react";
 import { format } from "date-fns";
 import { jobs, type Job } from "@/data/jobs";
 import { usePreferences } from "@/hooks/use-preferences";
+import { useJobStatus, statusColors } from "@/hooks/use-job-status";
 import { computeMatchScore, scoreColor } from "@/lib/match-score";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -15,6 +16,7 @@ import {
   Sparkles,
   AlertTriangle,
   Check,
+  Bell,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
@@ -64,8 +66,21 @@ const Digest = () => {
   const today = new Date();
   const dateStr = format(today, "MMMM d, yyyy");
   const { preferences, hasPreferences } = usePreferences();
+  const { changes: statusChanges } = useJobStatus();
   const [digest, setDigest] = useState<DigestEntry[] | null>(() => loadDigest(today));
   const [copied, setCopied] = useState(false);
+
+  const recentStatusUpdates = useMemo(() => {
+    const jobMap = new Map(jobs.map((j) => [j.id, j]));
+    return statusChanges.slice(0, 10).map((c) => {
+      const job = jobMap.get(c.jobId);
+      return {
+        ...c,
+        title: job?.title ?? "Unknown",
+        company: job?.company ?? "Unknown",
+      };
+    });
+  }, [statusChanges]);
 
   const generateDigest = useCallback(() => {
     const scored = jobs
@@ -226,6 +241,34 @@ const Digest = () => {
           ))}
         </CardContent>
       </Card>
+
+      {/* Recent Status Updates */}
+      {recentStatusUpdates.length > 0 && (
+        <>
+          <h2 className="mt-12 font-heading text-2xl font-semibold tracking-tight text-foreground">
+            <Bell className="mr-2 inline h-5 w-5" />
+            Recent Status Updates
+          </h2>
+          <Card className="mt-4">
+            <CardContent className="divide-y divide-border p-0">
+              {recentStatusUpdates.map((u, i) => (
+                <div key={i} className="flex items-center gap-4 px-5 py-3">
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-semibold text-foreground">{u.title}</p>
+                    <p className="text-xs text-muted-foreground">{u.company}</p>
+                  </div>
+                  <Badge variant="outline" className={statusColors[u.status]}>
+                    {u.status}
+                  </Badge>
+                  <span className="shrink-0 text-xs text-muted-foreground">
+                    {format(new Date(u.date), "MMM d, h:mm a")}
+                  </span>
+                </div>
+              ))}
+            </CardContent>
+          </Card>
+        </>
+      )}
 
       {/* Footer */}
       <p className="mt-6 text-center text-sm text-muted-foreground">
