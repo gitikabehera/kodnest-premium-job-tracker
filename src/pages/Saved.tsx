@@ -26,6 +26,8 @@ const Saved = () => {
             <JobCard
               key={job.id}
               job={job}
+              matchScore={0}
+              showScore={false}
               isSaved={isSaved(job.id)}
               onToggleSave={toggleSave}
               onView={setViewJob}

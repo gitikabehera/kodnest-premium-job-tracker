@@ -26,7 +26,7 @@ const locations = ["All", "Bangalore", "Hyderabad", "Chennai", "Pune", "Mumbai",
 const modes = ["All", "Remote", "Hybrid", "Onsite"];
 const experiences = ["All", "Fresher", "0-1", "1-3", "3-5"];
 const sources = ["All", "LinkedIn", "Naukri", "Indeed"];
-const sorts = ["Latest", "Oldest"];
+const sorts = ["Latest", "Oldest", "Match Score", "Salary"];
 
 const FilterBar = ({ filters, onChange }: FilterBarProps) => {
   const set = (key: keyof Filters, value: string) =>
