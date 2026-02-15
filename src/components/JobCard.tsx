@@ -11,9 +11,12 @@ import {
   BookmarkCheck,
   Eye,
 } from "lucide-react";
+import { scoreColor } from "@/lib/match-score";
 
 interface JobCardProps {
   job: Job;
+  matchScore: number;
+  showScore: boolean;
   isSaved: boolean;
   onToggleSave: (id: number) => void;
   onView: (job: Job) => void;
@@ -31,7 +34,7 @@ function postedLabel(days: number) {
   return `${days} days ago`;
 }
 
-const JobCard = ({ job, isSaved, onToggleSave, onView }: JobCardProps) => (
+const JobCard = ({ job, matchScore, showScore, isSaved, onToggleSave, onView }: JobCardProps) => (
   <Card className="group transition-shadow hover:shadow-md">
     <CardContent className="p-5">
       {/* Header */}
@@ -44,9 +47,16 @@ const JobCard = ({ job, isSaved, onToggleSave, onView }: JobCardProps) => (
             {job.company}
           </p>
         </div>
-        <Badge variant="outline" className={sourceBadgeClass[job.source] ?? ""}>
-          {job.source}
-        </Badge>
+        <div className="flex shrink-0 items-center gap-1.5">
+          {showScore && (
+            <Badge variant="outline" className={scoreColor(matchScore)}>
+              {matchScore}%
+            </Badge>
+          )}
+          <Badge variant="outline" className={sourceBadgeClass[job.source] ?? ""}>
+            {job.source}
+          </Badge>
+        </div>
       </div>
 
       {/* Meta row */}
