@@ -1,15 +1,25 @@
 import { useState } from "react";
 import { jobs, type Job } from "@/data/jobs";
 import { useSavedJobs } from "@/hooks/use-saved-jobs";
+import { useJobStatus, type JobStatus } from "@/hooks/use-job-status";
 import JobCard from "@/components/JobCard";
 import JobDetailModal from "@/components/JobDetailModal";
 import { Bookmark } from "lucide-react";
+import { toast } from "sonner";
 
 const Saved = () => {
   const { savedIds, toggleSave, isSaved } = useSavedJobs();
+  const { getStatus, setStatus: setJobStatus } = useJobStatus();
   const [viewJob, setViewJob] = useState<Job | null>(null);
 
   const savedJobs = jobs.filter((j) => savedIds.includes(j.id));
+
+  const handleStatusChange = (id: number, status: JobStatus) => {
+    setJobStatus(id, status);
+    if (status !== "Not Applied") {
+      toast.success(`Status updated: ${status}`);
+    }
+  };
 
   return (
     <main className="mx-auto min-h-[calc(100vh-4rem)] max-w-5xl px-6 py-10">
@@ -29,23 +39,21 @@ const Saved = () => {
               matchScore={0}
               showScore={false}
               isSaved={isSaved(job.id)}
+              status={getStatus(job.id)}
               onToggleSave={toggleSave}
               onView={setViewJob}
+              onStatusChange={handleStatusChange}
             />
           ))}
         </div>
       ) : (
         <div className="flex flex-col items-center justify-center py-32 text-center">
-          <Bookmark
-            className="h-16 w-16 text-muted-foreground/40"
-            strokeWidth={1}
-          />
+          <Bookmark className="h-16 w-16 text-muted-foreground/40" strokeWidth={1} />
           <h2 className="mt-6 font-heading text-2xl font-semibold text-foreground">
             No saved jobs yet
           </h2>
           <p className="mt-2 max-w-sm text-muted-foreground">
-            Bookmark jobs from the Dashboard and they will appear here for quick
-            access.
+            Bookmark jobs from the Dashboard and they will appear here for quick access.
           </p>
         </div>
       )}

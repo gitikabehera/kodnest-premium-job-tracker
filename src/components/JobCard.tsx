@@ -3,6 +3,13 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
   MapPin,
   Briefcase,
   Clock,
@@ -12,14 +19,21 @@ import {
   Eye,
 } from "lucide-react";
 import { scoreColor } from "@/lib/match-score";
+import {
+  type JobStatus,
+  allStatuses,
+  statusColors,
+} from "@/hooks/use-job-status";
 
 interface JobCardProps {
   job: Job;
   matchScore: number;
   showScore: boolean;
   isSaved: boolean;
+  status: JobStatus;
   onToggleSave: (id: number) => void;
   onView: (job: Job) => void;
+  onStatusChange: (id: number, status: JobStatus) => void;
 }
 
 const sourceBadgeClass: Record<string, string> = {
@@ -34,7 +48,16 @@ function postedLabel(days: number) {
   return `${days} days ago`;
 }
 
-const JobCard = ({ job, matchScore, showScore, isSaved, onToggleSave, onView }: JobCardProps) => (
+const JobCard = ({
+  job,
+  matchScore,
+  showScore,
+  isSaved,
+  status,
+  onToggleSave,
+  onView,
+  onStatusChange,
+}: JobCardProps) => (
   <Card className="group transition-shadow hover:shadow-md">
     <CardContent className="p-5">
       {/* Header */}
@@ -80,6 +103,28 @@ const JobCard = ({ job, matchScore, showScore, isSaved, onToggleSave, onView }: 
         {job.salaryRange}
       </p>
 
+      {/* Status */}
+      <div className="mt-3 flex items-center gap-2">
+        <Badge variant="outline" className={statusColors[status]}>
+          {status}
+        </Badge>
+        <Select
+          value={status}
+          onValueChange={(v) => onStatusChange(job.id, v as JobStatus)}
+        >
+          <SelectTrigger className="h-7 w-[130px] text-xs">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent className="z-50 bg-popover">
+            {allStatuses.map((s) => (
+              <SelectItem key={s} value={s}>
+                {s}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
       {/* Actions */}
       <div className="mt-4 flex flex-wrap gap-2">
         <Button
@@ -104,12 +149,7 @@ const JobCard = ({ job, matchScore, showScore, isSaved, onToggleSave, onView }: 
           )}
           {isSaved ? "Saved" : "Save"}
         </Button>
-        <Button
-          variant="outline"
-          size="sm"
-          className="gap-1.5"
-          asChild
-        >
+        <Button variant="outline" size="sm" className="gap-1.5" asChild>
           <a href={job.applyUrl} target="_blank" rel="noopener noreferrer">
             <ExternalLink className="h-3.5 w-3.5" />
             Apply

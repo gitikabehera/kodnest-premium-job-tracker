@@ -2,6 +2,7 @@ import { useState, useMemo } from "react";
 import { jobs, type Job } from "@/data/jobs";
 import { useSavedJobs } from "@/hooks/use-saved-jobs";
 import { usePreferences } from "@/hooks/use-preferences";
+import { useJobStatus, type JobStatus } from "@/hooks/use-job-status";
 import { computeMatchScore } from "@/lib/match-score";
 import FilterBar, { type Filters } from "@/components/FilterBar";
 import JobCard from "@/components/JobCard";
@@ -10,6 +11,7 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { AlertTriangle } from "lucide-react";
 import { Link } from "react-router-dom";
+import { toast } from "sonner";
 
 const defaultFilters: Filters = {
   keyword: "",
@@ -18,6 +20,7 @@ const defaultFilters: Filters = {
   experience: "All",
   source: "All",
   sort: "Latest",
+  status: "All",
 };
 
 const Dashboard = () => {
@@ -26,6 +29,14 @@ const Dashboard = () => {
   const [onlyMatches, setOnlyMatches] = useState(false);
   const { toggleSave, isSaved } = useSavedJobs();
   const { preferences, hasPreferences } = usePreferences();
+  const { getStatus, setStatus: setJobStatus } = useJobStatus();
+
+  const handleStatusChange = (id: number, status: JobStatus) => {
+    setJobStatus(id, status);
+    if (status !== "Not Applied") {
+      toast.success(`Status updated: ${status}`);
+    }
+  };
 
   const scored = useMemo(() => {
     return jobs.map((job) => ({
@@ -37,7 +48,6 @@ const Dashboard = () => {
   const filtered = useMemo(() => {
     let list = [...scored];
 
-    // Threshold toggle
     if (onlyMatches && hasPreferences) {
       list = list.filter((j) => j.matchScore >= preferences.minMatchScore);
     }
@@ -58,6 +68,8 @@ const Dashboard = () => {
       list = list.filter((j) => j.experience === filters.experience);
     if (filters.source !== "All")
       list = list.filter((j) => j.source === filters.source);
+    if (filters.status !== "All")
+      list = list.filter((j) => getStatus(j.id) === filters.status);
 
     if (filters.sort === "Latest") {
       list.sort((a, b) => a.postedDaysAgo - b.postedDaysAgo);
@@ -70,7 +82,7 @@ const Dashboard = () => {
     }
 
     return list;
-  }, [filters, scored, onlyMatches, hasPreferences, preferences.minMatchScore]);
+  }, [filters, scored, onlyMatches, hasPreferences, preferences.minMatchScore, getStatus]);
 
   return (
     <main className="mx-auto min-h-[calc(100vh-4rem)] max-w-5xl px-6 py-10">
@@ -118,8 +130,10 @@ const Dashboard = () => {
             matchScore={job.matchScore}
             showScore={hasPreferences}
             isSaved={isSaved(job.id)}
+            status={getStatus(job.id)}
             onToggleSave={toggleSave}
             onView={setViewJob}
+            onStatusChange={handleStatusChange}
           />
         ))}
       </div>
