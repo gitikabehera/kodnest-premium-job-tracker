@@ -12,6 +12,7 @@ import Digest from "./pages/Digest";
 import Proof from "./pages/Proof";
 import TestChecklist from "./pages/TestChecklist";
 import Ship from "./pages/Ship";
+import ProofSubmission from "./pages/ProofSubmission";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -32,6 +33,7 @@ const App = () => (
           <Route path="/proof" element={<Proof />} />
           <Route path="/jt/07-test" element={<TestChecklist />} />
           <Route path="/jt/08-ship" element={<Ship />} />
+          <Route path="/jt/proof" element={<ProofSubmission />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
